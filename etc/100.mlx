@@ -1,0 +1,9 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <filter name="Remove Isolated pieces (wrt Diameter)">
+  <Param type="RichAbsPerc" value="68.6841" min="0" name="MinComponentDiag" max="137.368"/>
+ </filter>
+ <filter name="Invert Faces Orientation">
+  <Param type="RichBool" value="true" name="forceFlip"/>
+ </filter>
+</FilterScript>

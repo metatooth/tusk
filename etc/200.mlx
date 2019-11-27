@@ -1,0 +1,21 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <filter name="Select Faces by Color">
+  <Param g="0" type="RichColor" r="0" a="255" name="Color" b="0"/>
+  <Param enum_val0="HSV" enum_val1="RGB" enum_cardinality="2" type="RichEnum" value="0" name="ColorSpace"/>
+  <Param type="RichBool" value="true" name="Inclusive"/>
+  <Param type="RichDynamicFloat" value="0.2" min="0" name="PercentRH" max="1"/>
+  <Param type="RichDynamicFloat" value="0.2" min="0" name="PercentGS" max="1"/>
+  <Param type="RichDynamicFloat" value="0.2" min="0" name="PercentBV" max="1"/>
+ </filter>
+ <filter name="Invert Selection">
+  <Param type="RichBool" value="true" name="InvFaces"/>
+  <Param type="RichBool" value="true" name="InvVerts"/>
+ </filter>
+ <filter name="Delete Selected Faces"/>
+ <filter name="Delete Selected Vertices"/>
+ <filter name="Invert Faces Orientation">
+  <Param description="Force Flip" value="true" type="RichBool" name="forceFlip" isxmlparam="0" tooltip="If selected, the normals will always be flipped; otherwise, the filter tries to set them outside"/>
+  <Param description="Flip only selected faces" value="false" type="RichBool" name="onlySelected" isxmlparam="0" tooltip="If selected, only selected faces will be affected"/>
+ </filter>
+</FilterScript>
