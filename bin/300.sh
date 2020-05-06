@@ -18,10 +18,10 @@ CURR="$(basename -- $INDIR)"
 echo $TOPDIR
 echo $CURR
 
-rm -rf $INDIR/400
-mkdir $INDIR/400
+rm -rf $INDIR/300
+mkdir $INDIR/300
 
 for f in $INDIR/200/*.ply; do
     next="$(basename ${f%.ply}.stl)"
-    ~/metaspace/meshlab/src/distrib/meshlabserver -i $f -o $INDIR/400/$next
+    ~/metaspace/meshlab/distrib/meshlabserver -i $f -o $INDIR/300/$next
 done
