@@ -24,8 +24,8 @@ year=$(date --utc +%Y)
 month=$(date --utc +%m)
 
 for d in $INDIR/*; do
-    #bin/200.sh $d
-    #bin/300.sh $d
+    bin/200.sh $d
+    bin/300.sh $d
 
     bname=$(basename $d)
     check=$(md5sum $d/300/$bname.stl)
