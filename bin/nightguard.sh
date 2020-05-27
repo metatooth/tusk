@@ -22,6 +22,7 @@ fi
 
 year=$(date --utc +%Y)
 month=$(date --utc +%m)
+day=$(date --utc +%d)
 
 for d in $INDIR/*; do
     bin/200.sh $d
@@ -32,7 +33,7 @@ for d in $INDIR/*; do
 
     arr=($check)
 
-    aws s3 cp $d/300/$bname.stl s3://metatooth-cabinet/$year/$month/${arr[0]}.stl
+    aws s3 cp $d/300/$bname.stl s3://metatooth-cabinet/$year/$month/$day/${arr[0]}.stl
     curl -i -v http://localhost:9393/assets \
 	 -H 'Content-Type: application/json' \
 	 -H 'Authorization: Metaspace-Token api_key='$KEY \
