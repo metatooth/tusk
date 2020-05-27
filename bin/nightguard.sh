@@ -27,17 +27,18 @@ day=$(date --utc +%d)
 for d in $INDIR/*; do
     bin/200.sh $d
     bin/300.sh $d
+    bin/400.sh $d
 
     bname=$(basename $d)
-    check=$(md5sum $d/300/$bname.stl)
+    check=$(md5sum $d/400/$bname.stl)
 
     arr=($check)
 
-    aws s3 cp $d/300/$bname.stl s3://metatooth-cabinet/$year/$month/$day/${arr[0]}.stl
-    curl -i -v http://localhost:9393/assets \
+    aws s3 cp $d/400/$bname.stl s3://metatooth-cabinet/$year/$month/$day/${arr[0]}.stl
+    curl -v http://localhost:9393/assets \
 	 -H 'Content-Type: application/json' \
 	 -H 'Authorization: Metaspace-Token api_key='$KEY \
-	 -d '{"data":{"name":"'$bname'","url":"https://metatooth-cabinet.s3.amazonaws.com/'$year'/'$month'/'${arr[0]}'.stl","mime_type":"application/sla"}}'
+	 -d '{"data":{"name":"'$bname'","url":"https://metatooth-cabinet.s3.amazonaws.com/'$year'/'$month'/'$day'/'${arr[0]}'.stl","mime_type":"application/sla"}}'
 done
 
 
