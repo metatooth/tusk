@@ -40,7 +40,8 @@ for d in $INDIR/*; do
     curl -v $URL/assets \
 	 -H 'Content-Type: application/json' \
 	 -H 'Authorization: Metaspace-Token api_key='$KEY \
-	 -d '{"data":{"name":"'$bname'","url":"https://metatooth-cabinet.s3.amazonaws.com/'$year'/'$month'/'$day'/'${arr[0]}'.stl","mime_type":"application/sla"}}'
+	 -d '{"data":{"name":"'$bname'","url":"https://metatooth-cabinet.s3.amazonaws.com/'$year'/'$month'/'$day'/'${arr[0]}'.stl","mime_type":"application/sla"}}' \
+   -o $d/400/curl.log
 done
 
 
