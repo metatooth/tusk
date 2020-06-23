@@ -27,11 +27,16 @@ month=$(date --utc +%m)
 day=$(date --utc +%d)
 
 for d in $INDIR/*; do
+    bname=$(basename $d)
+
+    if [[ $bname -eq "_archive" ]]; then
+     continue
+    fi
+
     bin/200.sh $d
     bin/300.sh $d
     bin/400.sh $d
 
-    bname=$(basename $d)
     check=$(md5sum $d/400/$bname.stl)
 
     arr=($check)
