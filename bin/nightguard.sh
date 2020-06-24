@@ -28,8 +28,9 @@ day=$(date --utc +%d)
 
 for d in $INDIR/*; do
     bname=$(basename $d)
-
-    if [[ $bname -eq "_archive" ]]; then
+    if [[ "$bname" == "_archive" ]]; then
+     echo "$bname is _archive"
+     echo "Will continue..."
      continue
     fi
 
@@ -38,15 +39,29 @@ for d in $INDIR/*; do
     bin/400.sh $d
 
     check=$(md5sum $d/400/$bname.stl)
-
     arr=($check)
 
-    aws s3 cp $d/400/$bname.stl s3://metatooth-cabinet/$year/$month/$day/${arr[0]}.stl
+    cp $d/400/$bname.stl $d/400/${arr[0]}.stl
+
+    stlname=$d/400/${arr[0]}.stl
+    gltfname=$d/400/${arr[0]}.gltf
+    binname=$d/400/${arr[0]}.bin
+
+    ~/metaspace/assimp/bin/assimp export $stlname $gltfname
+
+   
+    s3key=$year/$month/$day/${arr[0]}
+    bucket=metatooth-cabinet
+    s3uri=s3://$bucket/$s3key
+    url=https://$bucket.s3.amazonaws.com/$s3key.gltf
+
+    aws s3 cp $gltfname $s3uri.gltf
+    aws s3 cp $binname $s3uri.bin
+
     curl -v $URL/assets \
 	 -H 'Content-Type: application/json' \
 	 -H 'Authorization: Metaspace-Token api_key='$KEY \
-	 -d '{"data":{"name":"'$bname'","url":"https://metatooth-cabinet.s3.amazonaws.com/'$year'/'$month'/'$day'/'${arr[0]}'.stl","mime_type":"application/sla"}}' \
+	 -d '{"data":{"name":"'$bname'","url":"'$url'","mime_type":"model/gltf+json","service":"s3","bucket":"'$bucket'","s3key":"'$s3key'"}}' \
    -o $d/400/curl.log
 done
-
 
