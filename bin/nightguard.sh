@@ -34,9 +34,9 @@ for d in $INDIR/*; do
      continue
     fi
 
-    bin/200.sh $d
-    bin/300.sh $d
-    bin/400.sh $d
+    #bin/200.sh $d
+    #bin/300.sh $d
+    #bin/400.sh $d
 
     check=$(md5sum $d/400/$bname.stl)
     arr=($check)
@@ -48,7 +48,6 @@ for d in $INDIR/*; do
     binname=$d/400/${arr[0]}.bin
 
     ~/metaspace/assimp/bin/assimp export $stlname $gltfname
-
    
     s3key=$year/$month/$day/${arr[0]}
     bucket=metatooth-cabinet
@@ -58,10 +57,12 @@ for d in $INDIR/*; do
     aws s3 cp $gltfname $s3uri.gltf
     aws s3 cp $binname $s3uri.bin
 
-    curl -v $URL/assets \
+    body='{"data":{"name":"'$bname'","location":"'$url'","mime_type":"model/gltf+json","service":"s3","bucket":"'$bucket'","s3key":"'$s3key'.gltf"}}'
+
+    curl -v $URL/plans \
 	 -H 'Content-Type: application/json' \
 	 -H 'Authorization: Metaspace-Token api_key='$KEY \
-	 -d '{"data":{"name":"'$bname'","url":"'$url'","mime_type":"model/gltf+json","service":"s3","bucket":"'$bucket'","s3key":"'$s3key'"}}' \
+	 -d $body \
    -o $d/400/curl.log
 done
 
