@@ -54,10 +54,11 @@ for d in $INDIR/*; do
     s3uri=s3://$bucket/$s3key
     url=https://$bucket.s3.amazonaws.com/$s3key.gltf
 
+    aws s3 cp $stlname $s3uri.stl
     aws s3 cp $gltfname $s3uri.gltf
     aws s3 cp $binname $s3uri.bin
 
-    body='{"data":{"name":"'$bname'","location":"'$url'","mime_type":"model/gltf+json","service":"s3","bucket":"'$bucket'","s3key":"'$s3key'.gltf"}}'
+    body='{"data":{"name":"'$bname'","location":"'$url'","mime_type":"application.sla","service":"s3","bucket":"'$bucket'","s3key":"'$s3key'.gltf"}}'
 
     curl -v $URL/plans \
 	 -H 'Content-Type: application/json' \
