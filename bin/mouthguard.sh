@@ -1,15 +1,15 @@
 #!/usr/bin/bash
 
 if [ "$#" -ne 4 ]; then
-    echo "usage: nightguard.sh <indir> <url> <key> <type>"
+    echo "usage: mouthguard.sh <indir> <url> <key> <type>"
     echo
     echo "  Executes process steps 200, 300, and 400 for subdirectories"
     echo "  of <indir>. Using the API <url> & <key>, stores 400 stage"
     echo "  on s3://metatooth-cabinet. Specify ASSET or PLAN for <type>."
     echo
-    echo "  for example, nightguard.sh ~/metaspace/Nightguard \\"
+    echo "  for example, mouthguard.sh ~/metaspace/Mouthguard \\"
     echo "                 http://localhost:9393 \\"
-    echo "                 2:8e09332323e586eab46a1a2b5ead12f5 \\"
+    echo "                 26:b0a1b84a6e591897d4249990f928f1f3 \\"
     echo "                 PLAN"
     exit
 fi
@@ -30,10 +30,10 @@ if [ "$TYPE" == "ASSET" ]; then
   urlname=url
   mimetype=application/sla
 elif [ "$TYPE" == "PLAN" ]; then
-  extension=gltf
+  extension=json
   uri=/plans
   urlname=location
-  mimetype=model/gltf+json
+  mimetype=application/json
 else
   echo "$TYPE not in [ASSET, PLAN]. Try again."
   exit
@@ -61,19 +61,93 @@ for d in $INDIR/*; do
     cp $d/400/$bname.stl $d/400/${arr[0]}.stl
 
     stlname=$d/400/${arr[0]}.stl
-    gltfname=$d/400/${arr[0]}.gltf
+    jsonname=$d/400/${arr[0]}.json
     binname=$d/400/${arr[0]}.bin
-
-    ~/metaspace/assimp/bin/assimp export $stlname $gltfname
-   
+  
     s3key=$year/$month/$day/${arr[0]}
     bucket=metatooth-cabinet
     s3uri=s3://$bucket/$s3key
-    url=https://$bucket.s3.amazonaws.com/$s3key.$extension
+    urlstub=https://$bucket.s3.amazonaws.com/$s3key
+    url=$urlstub.$extension
 
     aws s3 cp $stlname $s3uri.stl
-    aws s3 cp $gltfname $s3uri.gltf
-    aws s3 cp $binname $s3uri.bin
+
+    cat > $jsonname <<EOF
+{
+  "__metadata__": {
+    "format": "assimp2json"
+   ,"version": 100
+  },"rootnode": {
+    "name": "<MetatoothRoot>"
+   ,"transformation": [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 ]
+   ,"children": [
+      {
+        "name": "maxillary"
+       ,"transformation": [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 ]
+       ,"meshrefs": [ 0 ]
+      }
+    ]
+  }
+  ,"flags": 0
+  ,"meshrefs": [
+    {
+       "name": "stl"
+      ,"materialindex": 0
+      ,"url": "$urlstub.stl"
+    }
+  ]
+  ,"materials": [
+    {
+      "properties": [
+        {
+					 "key": "?mat.name"
+					,"semantic": 0
+					,"index": 0
+					,"type": 3
+					,"value": "DefaultMaterial"
+				}
+				,{
+					 "key": "?clr.diffuse"
+					,"semantic": 0
+					,"index": 0
+					,"type": 1
+					,"value": [
+						 0.498039
+						,0.498039
+						,0.498039
+						,0.12549
+					]
+				}
+				,{
+					 "key": "?clr.specular"
+					,"semantic": 0
+					,"index": 0
+					,"type": 1
+					,"value": [
+						 0.498039
+						,0.498039
+						,0.498039
+						,0.12549
+					]
+				}
+				,{
+					 "key": "?clr.ambient"
+					,"semantic": 0
+					,"index": 0
+					,"type": 1
+					,"value": [
+						 0.05
+						,0.05
+						,0.05
+						,1
+					]
+				}
+      ]
+    }
+  ]
+}
+EOF
+    aws s3 cp $jsonname $s3uri.json
 
     body='{"data":{"name":"'$bname'","'$urlname'":"'$url'","mime_type":"'$mimetype'","service":"s3","bucket":"'$bucket'","s3key":"'$s3key'.'$extension'"}}'
 
