@@ -4,35 +4,31 @@
 
 ```
 $ sudo apt install libgl1-mesa-dev
-$ sudo apt install qt5-default libxml5patterns5 libxml5patterns5-dev qtscript5-dev
-$ sudo apt install jq
+$ sudo apt install qt5-default
+$ sudo apt install libqt5xmlpatterns5 libqt5xmlpatterns5-dev
+$ sudo apt install qtscript5-dev qtdeclarative5-dev
+$ sudo apt install jq cmake curl
 $ mkdir ~/metaspace
 $ cd metaspace
+$ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+$ unzip awscliv2.zip
+$ sudo ./aws/install
+$ aws configure
 $ git clone --recursive https://github.com/cnr-isti-vclab/meshlab
 $ cd meshlab
 $ cmake src/
 $ make
 ```
 
-## Get and build Open-Asset-Importer-Library
+# mouthguard.sh
 
-```
-$ cd metaspace
-$ git clone git@github.com:assimp/assimp.git
-$ cd assimp
-$ cmake CMakeLists.txt
-$ make
-```
-
-# nightguard.sh
-
-Processes all steps for each directory.
+Processes steps 200-400 for a directory.
 
 # Process Steps
 
 ## 000
 
-Automated step: STL files of scans.
+Manual step: Starting STL file
 
 ## 100
 
