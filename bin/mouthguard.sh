@@ -88,7 +88,8 @@ for d in $INDIR/*; do
       }
     ]
   }
-  ,"flags": 0
+  ,"meshes": [
+  ]
   ,"meshrefs": [
     {
        "name": "stl"

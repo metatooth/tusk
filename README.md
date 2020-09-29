@@ -1,5 +1,21 @@
 # Getting Started
 
+## Ubuntu 20.04
+
+Instructions are for an Ubuntu workstation.
+
+## Build tools
+
+```
+$ sudo apt install clang-tidy
+```
+
+## Install CGAL with Qt5
+
+```
+$ sudo apt install libcgal-dev libcgal-qt5-dev libqt5svg5-dev
+```
+
 ## Get and build Meshlab
 
 ```
