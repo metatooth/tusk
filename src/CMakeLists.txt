@@ -22,8 +22,8 @@ if ( CGAL_FOUND )
   #create the executable of the application
   create_single_source_cgal_program(draw_polyhedron_mesh.cpp)
 
-#  set_property(TARGET draw_surface_mesh
-#    PROPERTY CXX_CLANG_TIDY clang-tidy;-checks=*;-warnings-as-errors=*)
+  set_property(TARGET draw_polyhedron_mesh
+    PROPERTY CXX_CLANG_TIDY clang-tidy;--checks=-isystem)
 
   if(CGAL_Qt5_FOUND )
     #link it with the required CGAL libraries
