@@ -1,0 +1,21 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
+
+# gem "rails"
+
+gem 'xmpp4r', '~> 0.5.6'
+
+gem 'optparse', '~> 0.1.0'
+
+gem 'foreman', '~> 0.87.2'
+
+group :development do
+  gem 'rubocop', '~> 1.0'
+end
+
+gem 'rest-client', '~> 2.1'
+
+gem 'aws-sdk-s3', '~> 1'

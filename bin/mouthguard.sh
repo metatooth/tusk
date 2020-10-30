@@ -152,6 +152,8 @@ EOF
 	 -H 'Authorization: Metaspace-Token api_key='$KEY \
 	 -d $body \
    -o $d/400/curl.log
+
+   rm -f $d/400/${arr[0]}.stl
    
    cat $d/400/curl.log
    echo

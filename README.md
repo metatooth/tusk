@@ -41,6 +41,12 @@ $ sudo ./aws/install
 $ aws configure
 ```
 
+## Install and Configure ejabberd
+
+https://www.digitalocean.com/community/tutorials/how-to-install-ejabberd-xmpp-server-on-ubuntu
+
+https://computingforgeeks.com/install-ejabberd-xmpp-server-on-ubuntu/#ex1
+
 ## Get Code
 
 ```
