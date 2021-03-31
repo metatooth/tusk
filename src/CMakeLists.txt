@@ -1,6 +1,9 @@
 # This is the CMake script for compiling a CGAL application.
 cmake_minimum_required(VERSION 3.1...3.15)
-project( mouthguard )
+
+find_package(CppCheck)
+
+project( extrude )
 if(POLICY CMP0053)
   # Only set CMP0053 to OLD with CMake<3.10, otherwise there is a warning.
   if(NOT POLICY CMP0070)
@@ -20,14 +23,14 @@ if(CGAL_Qt5_FOUND)
 endif()
 if ( CGAL_FOUND )
   #create the executable of the application
-  create_single_source_cgal_program(mouthguard.cpp)
+  create_single_source_cgal_program(extrude.cpp utils.cpp)
 
-  set_property(TARGET mouthguard
+  set_property(TARGET extrude
     PROPERTY CXX_CLANG_TIDY clang-tidy;--checks=-isystem)
 
   if(CGAL_Qt5_FOUND )
     #link it with the required CGAL libraries
-    target_link_libraries(mouthguard PUBLIC CGAL::CGAL_Qt5)
+    target_link_libraries(extrude PUBLIC CGAL::CGAL_Qt5)
   endif()
 else()
     message(STATUS "This program requires the CGAL library, and will not be compiled.")

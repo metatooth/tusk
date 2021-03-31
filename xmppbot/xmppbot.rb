@@ -17,9 +17,9 @@ require 'xmpp4r/pubsub/helper/servicehelper'
 # Jabber.debug = true
 
 # settings
-key = '30:cb28c17a27ced8b9627e7ee3397735e9'
+key = ENV['API_KEY']
 auth = "Metaspace-Token api_key=#{key}"
-url = 'http://localhost:9393'
+url = ENV['API_URL']
 
 to = nil
 incoming = nil

@@ -5,6 +5,8 @@
 #include <CGAL/Aff_transformation_3.h>
 #include <CGAL/Nef_polyhedron_3.h>
 
+#include <CGAL/draw_polyhedron.h>
+
 #include <CGAL/Polygon_mesh_processing/clip.h>
 #include <CGAL/Polygon_mesh_processing/orient_polygon_soup.h>
 #include <CGAL/Polygon_mesh_processing/orientation.h>
@@ -94,12 +96,12 @@ void write_surface_mesh(Surface_mesh& mesh, std::ofstream& out)
 
 void usage()
 {
-  std::cerr << "mouthguard impression.stl shell.stl 0.030 1.5 output.stl\n\n"
+  std::cerr << "mouthguard impression shell offset step outfile\n\n"
             << "  Creates a mesh for a mouthguard for [impression] saving\n"
             << "  in STL format to [outfile]. Mouthguard will have a\n"
             << "  [thickness] specified in millimeters with an offset\n"
             << "  of [fit] from the [impression] surface, also in mm.\n\n"
-            << "  for example, mouthguard 0000.stl 0000-design.stl"
+            << "  for example, mouthguard 0000.stl a-0000.stl shell 1.5 0.25 output.stl\n"
             << std::endl;
 }
 
@@ -134,18 +136,44 @@ int main(int argc, char* argv[])
     PMP::extrude_mesh(impression, base, bot, top);
     std::cout << "Done." << std::endl;
     
+    std::cout << "Isotropic remeshing..." << std::endl;
+    std::cout << "Done." << std::endl;
+
     if (base.is_closed() && shell.is_closed()) {
       std::cout << "Make Nef Poly 1..." << std::endl;
+      CGAL::draw(shell);
       Nef_Polyhedron N1(shell);
       std::cout << "Make Nef Poly 2..." << std::endl;
+      CGAL::draw(base);
       Nef_Polyhedron N2(base);
+
       std::cout << "Done." << std::endl;
+
+        std::cout << "Convert to surface mesh..." << std::endl;
+        Surface_mesh M;
+        CGAL::convert_nef_polyhedron_to_polygon_mesh(N2, M); 
+        std::cout << "Done." << std::endl;
+        
+        std::string filename("base.stl");
+        std::cout << "Write to " << filename << std::endl;
+        std::ofstream ofs(filename);
+        write_surface_mesh(M, ofs);
+        ofs.close();
+        std::cout << "Done." << std::endl;
+                
+
 
       double offset = std::stof(argv[3]);
       double step = std::stof(argv[4]);
+      
+      std::cout << "offset: " << offset << std::endl;
+      std::cout << "step: " << step << std::endl;
+ 
+      std::cout << "Translating..." << std::endl;
  
       Aff_transformation_3 aff(CGAL::TRANSLATION, Vector_3(0,offset,0));
       N2.transform(aff);
+      std::cout << "Done." << std::endl;
 
       while (offset >= 0) {
         std::cout << "Subtracting at... " << offset << std::endl;

@@ -23,5 +23,5 @@ echo $CURR
 rm -rf $d600
 mkdir $d600
 
-~/metaspace/meshlab/distrib/meshlabserver -l $d600/meshlab.log -i $d500/mesh.stl -o $d600/shell.stl -m vn fn -s ~/metaspace/mouthguard/etc/600.mlx
+meshlabserver -l $d600/meshlab.log -i $d500/mesh.stl -o $d600/shell.stl -m vn fn -s /app/etc/600.mlx
 
