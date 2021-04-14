@@ -43,6 +43,8 @@ year=$(date --utc +%Y)
 month=$(date --utc +%m)
 day=$(date --utc +%d)
 
+post=false
+
 for d in $INDIR/*; do
     bname=$(basename $d)
     if [[ "$bname" == "_archive" ]]; then
@@ -54,25 +56,27 @@ for d in $INDIR/*; do
     bin/200.sh $d
     bin/300.sh $d
     bin/400.sh $d
+    bin/500.sh $d
 
-    check=$(md5sum $d/400/$bname.stl)
-    arr=($check)
+    if [[ "$post" == "true" ]]; then
+      check=$(md5sum $d/400/$bname.stl)
+      arr=($check)
 
-    cp $d/400/$bname.stl $d/400/${arr[0]}.stl
+      cp $d/400/$bname.stl $d/400/${arr[0]}.stl
 
-    stlname=$d/400/${arr[0]}.stl
-    jsonname=$d/400/${arr[0]}.json
-    binname=$d/400/${arr[0]}.bin
+      stlname=$d/400/${arr[0]}.stl
+      jsonname=$d/400/${arr[0]}.json
+      binname=$d/400/${arr[0]}.bin
   
-    s3key=$year/$month/$day/${arr[0]}
-    bucket=metatooth-cabinet
-    s3uri=s3://$bucket/$s3key
-    urlstub=https://$bucket.s3.amazonaws.com/$s3key
-    url=$urlstub.$extension
+      s3key=$year/$month/$day/${arr[0]}
+      bucket=metatooth-cabinet
+      s3uri=s3://$bucket/$s3key
+      urlstub=https://$bucket.s3.amazonaws.com/$s3key
+      url=$urlstub.$extension
 
-    aws s3 cp $stlname $s3uri.stl
+      aws s3 cp $stlname $s3uri.stl
 
-    cat > $jsonname <<EOF
+      cat > $jsonname <<EOF
 {
   "__metadata__": {
     "format": "assimp2json"
@@ -143,19 +147,20 @@ for d in $INDIR/*; do
   ]
 }
 EOF
-    aws s3 cp $jsonname $s3uri.json
+      aws s3 cp $jsonname $s3uri.json
 
-    body='{"data":{"name":"'$bname'","'$urlname'":"'$url'","mime_type":"'$mimetype'","service":"s3","bucket":"'$bucket'","s3key":"'$s3key'.'$extension'"}}'
+      body='{"data":{"name":"'$bname'","'$urlname'":"'$url'","mime_type":"'$mimetype'","service":"s3","bucket":"'$bucket'","s3key":"'$s3key'.'$extension'"}}'
 
-    curl $URL$uri \
-	 -H 'Content-Type: application/json' \
-	 -H 'Authorization: Metaspace-Token api_key='$KEY \
-	 -d $body \
-   -o $d/400/curl.log
+      curl $URL$uri \
+	   -H 'Content-Type: application/json' \
+	   -H 'Authorization: Metaspace-Token api_key='$KEY \
+	   -d $body \
+     -o $d/400/curl.log
 
-   rm -f $d/400/${arr[0]}.stl
+     rm -f $d/400/${arr[0]}.stl
    
-   cat $d/400/curl.log
-   echo
+     cat $d/400/curl.log
+     echo
+  fi
 done
 

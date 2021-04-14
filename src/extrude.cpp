@@ -1,5 +1,4 @@
 #include <CGAL/Simple_cartesian.h>
-#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Surface_mesh.h>
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/Vector_3.h>
@@ -13,7 +12,7 @@
 #include <CGAL/Polygon_mesh_processing/orientation.h>
 #include <CGAL/Polygon_mesh_processing/polygon_soup_to_polygon_mesh.h>
 #include <CGAL/Polygon_mesh_processing/extrude.h>
-#include <CGAL/Polygon_mesh_processing/refine.h>
+#include <CGAL/Polygon_mesh_processing/remesh.h>
 
 #include <CGAL/boost/graph/convert_nef_polyhedron_to_polygon_mesh.h>
 
@@ -26,9 +25,6 @@
 #include <algorithm>
 
 using K = CGAL::Simple_cartesian<float>;
-
-//using K = CGAL::Exact_predicates_exact_constructions_kernel;
-
 using Polyhedron = CGAL::Polyhedron_3<K>;
 using Vector_3 = K::Vector_3;
 using Point_3 = K::Point_3;
@@ -40,6 +36,7 @@ using Surface_mesh = CGAL::Surface_mesh<Point_3>;
 namespace PMP = CGAL::Polygon_mesh_processing;
 
 double EXTRUDE = 0;
+double TARGET_EDGE_LENGTH = 0.04;
 
 template<typename MAP>
 struct Bot {
@@ -103,6 +100,13 @@ int main(int argc, char* argv[])
     Bot<VPMap> bot(get(CGAL::vertex_point, base));
     Top<VPMap> top(get(CGAL::vertex_point, base));
     PMP::extrude_mesh(impression, base, bot, top);
+    std::cout << "Done." << std::endl;
+
+    std::cout << "Remeshing of " << num_faces(base) << " faces ..." << std::endl;
+    PMP::isotropic_remeshing(faces(base),
+                             TARGET_EDGE_LENGTH,
+                             base);
+
     std::cout << "Done." << std::endl;
 
     std::cout << "Write to " << argv[3] << std::endl;
