@@ -1,4 +1,9 @@
+#include <CGAL/Aff_transformation_3.h>
+
 #include "utils.h"
+
+using Affine = CGAL::Aff_transformation_3<K>;
+using Vector_3 = K::Vector_3;
 
 void normalize_usage()
 {
@@ -32,7 +37,20 @@ int normalize(const char* infile, const char* outfile)
 
     std::cout << "avgx " << avgx << std::endl;
     std::cout << "avgy " << avgy << std::endl;
-    std::cout << "avgz " << avgz << std::endl;
+    std::cout << "avgz " << avgz << std::endl; 
+
+    Affine center(CGAL::TRANSLATION, Vector_3(-avgx, -avgy, -avgz));
+    
+    Affine nY15(cos(PI/12), 0, -sin(PI/12),
+                         0, 1,           0,
+                sin(PI/12), 0,  cos(PI/12), 
+                1);
+
+    Affine normalize = nY15 * center;
+
+    for (std::size_t i = 0, l = points.size(); i < l; i++) {
+      points[i] = normalize(points[i]);
+    }
 
     std::cout << "Write to " << outfile << std::endl;
     write_PLY(points, polygons, outfile);

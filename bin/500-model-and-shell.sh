@@ -23,8 +23,9 @@ mkdir $INDIR/500
 
 rm -rf $INDIR/output
 
-for f in $INDIR/400/*.stl; do
-    next="$(basename ${f})"
-    ~/metaspace/meshlab/distrib/meshlabserver -l $INDIR/500/meshlab.log -i $f -o $INDIR/500/shell-$next -m vn fn -s etc/500-a.mlx
-    _build/bin/tusk/tusk extrude 20 $f $INDIR/500/model-$next
+for f in $INDIR/400/*.ply; do
+    nextply="$(basename ${f})"
+    nextstl="$(basename ${f%.ply}.stl)"
+    ~/metaspace/meshlab/distrib/meshlabserver -l $INDIR/500/meshlab.log -i $f -o $INDIR/500/shell-$nextply -m vn fn -s etc/500-shell.mlx
+    _build/bin/tusk/tusk extrude 10 $f $INDIR/500/model-$nextstl
 done

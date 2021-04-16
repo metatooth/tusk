@@ -21,7 +21,7 @@ echo $CURR
 rm -rf $INDIR/400
 mkdir $INDIR/400
 
-for f in $INDIR/300/*.stl; do
+for f in $INDIR/300/*.ply; do
     next="$(basename ${f})"
-    ~/metaspace/meshlab/distrib/meshlabserver -l $INDIR/400/meshlab.log -i $f -o $INDIR/400/$next -m vn fn -s etc/400.mlx
+    _build/bin/tusk/tusk normalize $f $INDIR/400/$next
 done

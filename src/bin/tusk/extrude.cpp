@@ -2,6 +2,8 @@
 #include <CGAL/Polyhedron_3.h>
 
 #include <CGAL/Polygon_mesh_processing/extrude.h>
+#include <CGAL/Polygon_mesh_processing/orient_polygon_soup.h>
+#include <CGAL/Polygon_mesh_processing/polygon_soup_to_polygon_mesh.h>
 
 #include "utils.h"
 
@@ -50,34 +52,38 @@ void extrude_usage()
             << "  Extrusion will be along the y-axis to [y-value].\n"
             << "  Y-value in millimeters.\n"
             << "  Creates an extruded mesh from [infile] saving\n"
-            << "  to [outfile]. Files to be in binary STL format.\n\n"
-            << "  for example, tusk extrude 20 0000.stl output.stl\n"
+            << "  to [outfile]. Input in binary PLY, output in binary STL.\n\n"
+            << "  for example, tusk extrude 20 0000.ply model-0000.stl\n"
             << std::endl;
 }
 
 int extrude(double offset, const char* infile, const char* outfile)
 {
   try {
-    Polyhedron impression, base;
+    std::vector<Point_3> points;
+    std::vector<std::vector<size_t> > polygons;
 
     std::cout << "Load impression from " << infile << std::endl;
-    std::ifstream input(infile);
-    read_polyhedron(input, &impression);
-    input.close();
+    read_PLY(infile, points, polygons);
     std::cout << "Done." << std::endl;
+
+    Polyhedron impression, model;
+
+    PMP::orient_polygon_soup(points, polygons);
+    PMP::polygon_soup_to_polygon_mesh(points, polygons, impression);
 
     EXTRUDE = offset;
     std::cout << "Extruding mesh to y=" << EXTRUDE << " ..." << std::endl;
 
     typedef typename boost::property_map<Polyhedron, CGAL::vertex_point_t>::type VPMap;
-    Bot<VPMap> bot(get(CGAL::vertex_point, base));
-    Top<VPMap> top(get(CGAL::vertex_point, base));
-    PMP::extrude_mesh(impression, base, bot, top);
+    Bot<VPMap> bot(get(CGAL::vertex_point, model));
+    Top<VPMap> top(get(CGAL::vertex_point, model));
+    PMP::extrude_mesh(impression, model, bot, top);
     std::cout << "Done." << std::endl;
 
     std::cout << "Write to " << outfile << std::endl;
     std::ofstream output(outfile, std::ios::out | std::ios::binary);
-    write_polyhedron(base, output);
+    write_polyhedron(model, output);
     output.close();
     std::cout << "Done." << std::endl;
 

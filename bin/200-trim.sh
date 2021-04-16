@@ -23,6 +23,5 @@ mkdir $INDIR/200
 
 for f in $INDIR/100/*.ply; do
     next="$(basename -- $f)"
-    ~/metaspace/meshlab/distrib/meshlabserver -l $INDIR/200/meshlab.log -i $f -o $INDIR/200/$next -m vn fn -s etc/200.mlx
-    
+    ~/metaspace/meshlab/distrib/meshlabserver -l $INDIR/200/meshlab.log -i $f -o $INDIR/200/$next -m vn fn -s etc/200-trim.mlx    
 done

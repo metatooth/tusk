@@ -22,6 +22,6 @@ rm -rf $INDIR/300
 mkdir $INDIR/300
 
 for f in $INDIR/200/*.ply; do
-    next="$(basename ${f%.ply}.stl)"
-    ~/metaspace/meshlab/distrib/meshlabserver -l $INDIR/300/meshlab.log -i $f -o $INDIR/300/$next -m vn fn -s etc/300.mlx
+  next="$(basename ${f})"
+  _build/bin/tusk/tusk convention $f $INDIR/300/$next
 done
