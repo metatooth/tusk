@@ -1,9 +1,17 @@
 #ifndef TUSK_NORMALIZE_H
 #define TUSK_NORMALIZE_H
 
-int normalize_usage();
+#include "app.h"
 
-int normalize(const char* infile, const char* outfile);
+namespace tusk {
+ 
+  class Normalize: public App {
+  public:
+    void usage();
+    int run(const char* infile, const char* outfile);
+  };
+
+}
 
 #endif // TUSK_NORMALIZE_H
 

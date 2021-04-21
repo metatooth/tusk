@@ -1,29 +1,15 @@
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Simple_cartesian.h>
-#include <CGAL/Polyhedron_3.h>
-#include <CGAL/Surface_mesh.h>
-#include <CGAL/Vector_3.h>
-
-#include <CGAL/Polygon_mesh_processing/orient_polygon_soup.h>
-#include <CGAL/Polygon_mesh_processing/polygon_soup_to_polygon_mesh.h>
+#include "utils.h" // class implemented
 
 #include <CGAL/IO/STL_reader.h>
 
-#include "utils.h"
 #include "rply-1.1.4/rply.h"
 
 #include <fstream>
 #include <algorithm>
 
-using K = CGAL::Simple_cartesian<float>;
-using Polyhedron = CGAL::Polyhedron_3<K>;
-using Point_3 = K::Point_3;
-using Vector_3 = K::Vector_3;
-using Facet_iterator = Polyhedron::Facet_iterator;
-using Vertex_iterator = Polyhedron::Vertex_iterator;
-using HF_circulator = Polyhedron::Halfedge_around_facet_circulator;
+using Vector = K::Vector_3;
 
-namespace PMP = CGAL::Polygon_mesh_processing;
+using namespace tusk;
 
 std::size_t VERTEX_SIZE = 10;
 std::size_t VERTEX_CURRENT = 0;
@@ -65,9 +51,10 @@ static int face_cb(p_ply_argument argument) {
   return 1;
 }
 
-int read_PLY(const char* filename, 
-             std::vector<Point_3>& points,
-             std::vector<std::vector<std::size_t> >& polygons)
+int
+tusk::read_PLY(const char* filename, 
+               std::vector<Point>& points,
+               std::vector<std::vector<std::size_t> >& polygons)
 {
   p_ply ply = ply_open(filename, NULL, 0, NULL);
   if (!ply) return 1;
@@ -88,7 +75,7 @@ int read_PLY(const char* filename,
   points.resize(nvertices);
 
   for (std::size_t i = 0; i < nvertices; i++) {
-    points[i] = Point_3(vertices[3*i], vertices[3*i+1], vertices[3*i+2]);
+    points[i] = Point(vertices[3*i], vertices[3*i+1], vertices[3*i+2]);
   }
 
   polygons.resize(ntriangles);
@@ -98,11 +85,12 @@ int read_PLY(const char* filename,
   } 
 
   return 0;
-}
+}// read_PLY
 
-int write_PLY(std::vector<Point_3>& points,
-              std::vector<std::vector<std::size_t> >& polygons,
-              const char* filename) {
+int
+tusk::write_PLY(std::vector<Point>& points,
+                std::vector<std::vector<std::size_t> >& polygons,
+                const char* filename) {
   p_ply ply = ply_create(filename, PLY_LITTLE_ENDIAN, NULL, 0, NULL);
   if (!ply) return 1;
 
@@ -135,146 +123,4 @@ int write_PLY(std::vector<Point_3>& points,
   if (!ply_close(ply)) return 1;
   
   return 0;
-}
-
-void read_polyhedron(std::ifstream& in, Polyhedron* P)
-{
-  std::vector< CGAL::cpp11::array<double,3> > in_points;
-  std::vector< CGAL::cpp11::array<size_t,3> > triangles;
-
-  CGAL::read_STL(in, in_points, triangles, false);
-
-  std::vector<Point_3> points;
-  points.resize(in_points.size());
-
-  for (std::size_t i = 0, l = in_points.size(); i < l; i++) {
-    points[i] = Point_3(in_points[i][0], in_points[i][1], in_points[i][2]);
-  }
-
-  std::vector<std::vector<std::size_t> > polygons;
-  polygons.resize(triangles.size());
-
-  for (std::size_t i = 0, l = triangles.size(); i < l; i++) {
-    polygons[i] = { triangles[i][0], triangles[i][1], triangles[i][2] };
-  }
-
-  PMP::orient_polygon_soup(points, polygons);
-  PMP::polygon_soup_to_polygon_mesh(points, polygons, *P);
-}
-
-void write_polyhedron(Polyhedron& P, std::ofstream& out)
-{
-  std::string info = "Source: Metatooth LLC, Format: STL, Type: Binary";
-  char head[80];
-  std::strncpy(head, info.c_str(), sizeof(head)-1);
-  char attribute[2] = "0";
-  unsigned long number = P.size_of_facets();
-
-  out.write(head, sizeof(head));
-  out.write((char*)&number, 4);
-            
-  Facet_iterator last_f = P.facets_end();
-  -- last_f;
-
-  Facet_iterator f = P.facets_begin();
-  do {
-    HF_circulator h = f->facet_begin();
-    Point_3 p = h->vertex()->point();
-    Point_3 q = h->next()->vertex()->point();
-    Point_3 r = h->next()->next()->vertex()->point();
-    
-    Vector_3 n = CGAL::collinear(p, q, r) ?
-      Vector_3(1, 0, 0) : CGAL::unit_normal(p, q, r);
-    
-    float coords[12] =
-      {
-       n.x(),
-       n.y(),
-       n.z(),
-       p.x(),
-       p.y(),
-       p.z(),
-       q.x(),
-       q.y(),
-       q.z(),
-       r.x(),
-       r.y(),
-       r.z()
-      };
-    
-    for (int i = 0; i < 12; ++i) {
-      out.write((char*)&coords[i], 4);
-    }
-
-    out.write(attribute, 2);
-
-  } while (f++ != last_f);
-}
-
-
-typedef CGAL::Exact_predicates_inexact_constructions_kernel EK;
-typedef CGAL::Surface_mesh<EK::Point_3> Mesh;
-typedef boost::graph_traits<Mesh>::face_descriptor face_descriptor;
-
-void
-read_mesh(std::ifstream& in, Mesh* mesh)
-{
-  std::vector< CGAL::cpp11::array<double,3> > in_points;
-  std::vector< CGAL::cpp11::array<size_t,3> > triangles;
-
-  CGAL::read_STL(in, in_points, triangles, false);
-
-  std::vector<Point_3> points;
-  points.resize(in_points.size());
-
-  for (std::size_t i = 0, l = in_points.size(); i < l; i++) {
-    points[i] = Point_3(in_points[i][0], in_points[i][1], in_points[i][2]);
-  }
-
-  std::vector<std::vector<std::size_t> > polygons;
-  polygons.resize(triangles.size());
-
-  for (std::size_t i = 0, l = triangles.size(); i < l; i++) {
-    polygons[i] = { triangles[i][0], triangles[i][1], triangles[i][2] };
-  } 
-
-  PMP::orient_polygon_soup(points, polygons);
-  PMP::polygon_soup_to_polygon_mesh(points, polygons, *mesh);
-}
-
-void
-write_mesh(Mesh& mesh, std::ofstream& out)
-{
-  std::string info = "Source: Metatooth LLC, Format: STL, Type: Binary";
-  char head[80];
-  std::strncpy(head, info.c_str(), sizeof(head)-1);
-  char attribute[2] = "0";
-  unsigned long number = num_faces(mesh);
-
-  out.write(head, sizeof(head));
-  out.write((char*)&number, 4);
-  
-  BOOST_FOREACH(face_descriptor f, faces(mesh)) {
-    CGAL::Vertex_around_face_iterator<Mesh> vbegin, vend;
-
-    float coords[12] = { 0,0,0, 0,0,0, 0,0,0, 0,0,0 };
-    int i = 0;    
-    for (boost::tie(vbegin, vend) = vertices_around_face(mesh.halfedge(f), mesh);
-         vbegin != vend;
-         ++vbegin) {
-      coords[3*i+3] = mesh.point(*vbegin).x();
-      coords[3*i+4] = mesh.point(*vbegin).y();
-      coords[3*i+5] = mesh.point(*vbegin).z();
-      i++;       
-    }
-
-
-    for (int i = 0; i < 12; ++i) {
-      std::cout << "coord " << i << " " << coords[i] << std::endl;
-      out.write((char*)&coords[i], 4);
-    }
-    out.write(attribute, 2);
-
-    i++;
-  }
-}
+}// write_PLY

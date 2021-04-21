@@ -1,22 +1,19 @@
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Surface_mesh.h>
-
 #include <CGAL/Polygon_mesh_processing/remesh.h>
 #include <CGAL/Polygon_mesh_processing/border.h>
 
-#include "utils.h"
+#include "catalog.h"
+#include "remesh.h" // class implemented
 
 #include <boost/function_output_iterator.hpp>
 #include <fstream>
 #include <vector>
 
-typedef CGAL::Exact_predicates_inexact_constructions_kernel EK;
-typedef CGAL::Surface_mesh<EK::Point_3> Mesh;
-
 typedef boost::graph_traits<Mesh>::halfedge_descriptor halfedge_descriptor;
 typedef boost::graph_traits<Mesh>::edge_descriptor     edge_descriptor;
 
 namespace PMP = CGAL::Polygon_mesh_processing;
+
+using namespace tusk;
 
 struct halfedge2edge
 {
@@ -31,7 +28,8 @@ struct halfedge2edge
   std::vector<edge_descriptor>& m_edges;
 };
 
-void remesh_usage()
+void
+Remesh::usage()
 {
   std::cerr << "remesh [target_edge_length] [infile] [outfile]\n\n"
             <<"   [target_edge_length] in millimters.\n"
@@ -39,18 +37,20 @@ void remesh_usage()
             << "  Files in binary STL format.\n\n"
             << "  for example, remesh 0.04 0000.stl output.stl\n"
             << std::endl;
-}
+}// usage
 
 
-int remesh(double length, const std::string& infile, const std::string& outfile)
+int
+Remesh::run(double length,
+            const std::string& infile,
+            const std::string& outfile)
 {
   try {
     Mesh mesh;
 
     std::cout << "Load mesh from " << infile << "...";
-    std::ifstream ifs(infile.c_str());
-    read_mesh(ifs, &mesh);
-    ifs.close();
+    Catalog catalog;
+    catalog.read(infile, &mesh);
     std::cout << "done." << std::endl;
 
     unsigned int nb_iter = 3;
@@ -67,9 +67,7 @@ int remesh(double length, const std::string& infile, const std::string& outfile)
     std::cout << "done." << std::endl;
 
     std::cout << "Write to " << outfile << "...";
-    std::ofstream ofs(outfile.c_str(), std::ios::out | std::ios::binary);
-    write_mesh(mesh, ofs);
-    ofs.close();
+    catalog.write(mesh, outfile);
     std::cout << "done." << std::endl;
 
   } catch (std::exception& e) {
@@ -77,4 +75,4 @@ int remesh(double length, const std::string& infile, const std::string& outfile)
   }
 
   return 0;
-}
+}// run

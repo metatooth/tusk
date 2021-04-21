@@ -1,11 +1,15 @@
 #include <CGAL/Aff_transformation_3.h>
 
+#include "convention.h" // class implemented
 #include "utils.h"
 
 using Affine = CGAL::Aff_transformation_3<K>;
 using Vector_3 = K::Vector_3;
 
-void convention_usage()
+using namespace tusk;
+
+void
+Convention::usage()
 {
   std::cerr << "tusk convention [infile] [outfile]\n\n"
             << "  Transform the [infile] mesh to meet Tusk conventional\n"
@@ -13,12 +17,13 @@ void convention_usage()
             << "  PLY format.\n\n"
             << "  for example, tusk convention input.ply output.ply\n"
             << std::endl;
-}
+}// usage
 
-int convention(const char* infile, const char* outfile)
+int
+Convention::run(const char* infile, const char* outfile)
 {
   try {
-    std::vector<Point_3> points;
+    std::vector<Point> points;
     std::vector<std::vector<size_t> > polygons;
     
     std::cout << "Loading mesh from " << infile << "..." << std::endl;
@@ -56,5 +61,4 @@ int convention(const char* infile, const char* outfile)
   }
 
   return 0;
-}
-
+}// run

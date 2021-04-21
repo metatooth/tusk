@@ -3,10 +3,12 @@ project("tusk")
 include_directories("../../lib")
 
 create_single_source_cgal_program(tusk.cpp
+  catalog.cpp
   convention.cpp
   extrude.cpp
   normalize.cpp
   remesh.cpp
+  show.cpp
   subtract.cpp
   utils.cpp)
     

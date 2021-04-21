@@ -5,6 +5,8 @@
 #include <CGAL/Polygon_mesh_processing/orient_polygon_soup.h>
 #include <CGAL/Polygon_mesh_processing/polygon_soup_to_polygon_mesh.h>
 
+#include "catalog.h"
+#include "extrude.h" // class implemented
 #include "utils.h"
 
 #include <fstream>
@@ -16,6 +18,8 @@ using Polyhedron = CGAL::Polyhedron_3<K>;
 using Vector_3 = K::Vector_3;
 
 namespace PMP = CGAL::Polygon_mesh_processing;
+
+using namespace tusk;
 
 double EXTRUDE = 0;
 
@@ -46,7 +50,8 @@ struct Top {
   MAP map;
 };
   
-void extrude_usage()
+void
+Extrude::usage()
 {
   std::cerr << "tusk extrude [y-value] [infile] [outfile]\n\n"
             << "  Extrusion will be along the y-axis to [y-value].\n"
@@ -55,12 +60,13 @@ void extrude_usage()
             << "  to [outfile]. Input in binary PLY, output in binary STL.\n\n"
             << "  for example, tusk extrude 20 0000.ply model-0000.stl\n"
             << std::endl;
-}
+}// usage
 
-int extrude(double offset, const char* infile, const char* outfile)
+int
+Extrude::run(double offset, const char* infile, const char* outfile)
 {
   try {
-    std::vector<Point_3> points;
+    std::vector<Point> points;
     std::vector<std::vector<size_t> > polygons;
 
     std::cout << "Load impression from " << infile << std::endl;
@@ -82,9 +88,8 @@ int extrude(double offset, const char* infile, const char* outfile)
     std::cout << "Done." << std::endl;
 
     std::cout << "Write to " << outfile << std::endl;
-    std::ofstream output(outfile, std::ios::out | std::ios::binary);
-    write_polyhedron(model, output);
-    output.close();
+    tusk::Catalog catalog;
+    catalog.write(model, outfile);
     std::cout << "Done." << std::endl;
 
   } catch (std::exception& e) {
@@ -92,4 +97,4 @@ int extrude(double offset, const char* infile, const char* outfile)
   }
 
   return 0;
-}
+}// run

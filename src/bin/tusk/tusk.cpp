@@ -5,6 +5,7 @@
 #include "extrude.h"
 #include "normalize.h"
 #include "remesh.h"
+#include "show.h"
 #include "subtract.h"
 
 void usage()
@@ -16,8 +17,11 @@ void usage()
             << "  normalize        Transform mesh to \"normal\" dental position\n"
             << "  subtract         Boolean subtraction of two watertight meshes.\n"
             << "  remesh           Isotropic remeshing\n"
+            << "  show             Displays a mesh\n"
             << std::endl;
 }
+
+using namespace tusk;
 
 int main(int argc, char* argv[])
 {
@@ -39,59 +43,48 @@ int main(int argc, char* argv[])
   std::cout << "do " << first << std::endl;
 
   if (first.compare("convention") == 0) {
+    Convention convention;
     if (argc < 4) {
-      convention_usage();
+      convention.usage();
       return 1;
     }
-    convention(argv[2], argv[3]);
+    convention.run(argv[2], argv[3]);
   } else if (first.compare("extrude") == 0) {
+    Extrude extrude;
     if (argc < 5) {
-      extrude_usage();
+      extrude.usage();
       return 1;
     }
-    extrude(atof(argv[2]), argv[3], argv[4]);
+    extrude.run(atof(argv[2]), argv[3], argv[4]);
   } else if (first.compare("normalize") == 0) {
+    Normalize normalize;
     if (argc < 4) {
-      normalize_usage();
+      normalize.usage();
       return 1;
     }
-    normalize(argv[2], argv[3]);
+    normalize.run(argv[2], argv[3]);
   } else if (first.compare("remesh") == 0) {
+    Remesh remesh;
     if (argc < 5) {
-      remesh_usage();
+      remesh.usage();
       return 1;
     }
-    remesh(atof(argv[2]), argv[3], argv[4]);
+    remesh.run(atof(argv[2]), argv[3], argv[4]);
+  } else if (first.compare("show") == 0) {
+    Show show;
+    if (argc < 3) {
+      show.usage();
+      return 1;
+    }
+    show.run(argv[2]);
   } else if (first.compare("subtract") == 0) {
+    Subtract subtract;
     if (argc < 5) {
-      subtract_usage();
+      subtract.usage();
       return 1;
     }
-    subtract(argv[2], argv[3], argv[4]);
+    subtract.run(argv[2], argv[3], argv[4]);
   }
 
   return 0;
 }
-
-/* ----------------------------------------------------------------------
- * Copyright (C) 2021 Metatooth LLC
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- * ---------------------------------------------------------------------- */

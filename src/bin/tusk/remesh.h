@@ -1,10 +1,16 @@
 #ifndef TUSK_REMESH_H
 #define TUSK_REMESH_H
 
-int remesh_usage();
+#include "app.h"
 
-int remesh(double length,
-           const std::string& infile,
-           const std::string& outfile);
+namespace tusk {
+
+  class Remesh: public App {
+  public:
+    void usage();
+    int run(double length, const std::string& in, const std::string& out);
+  };
+
+}
 
 #endif // TUSK_REMESH_H

@@ -1,8 +1,16 @@
 #ifndef TUSK_EXTRUDE_H
 #define TUSK_EXTRUDE_H
 
-int extrude_usage();
+#include "app.h"
 
-int extrude(double offset, const char* infile, const char* outfile);
+namespace tusk {
+
+  class Extrude: public App {
+  public:
+    void usage();
+    int run(double offset, const char* infile, const char* outfile);
+  };
+
+}
 
 #endif // TUSK_EXTRUDE_H
