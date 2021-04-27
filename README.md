@@ -1,6 +1,6 @@
 # Tusk
 
-Make mouthguards.
+Make teeth stuff.
 
 ## Getting Started
 
