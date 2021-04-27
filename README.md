@@ -35,6 +35,7 @@ $ cd tusk
 $ mkdir _build
 $ cd _build
 $ cmake ../src
+$ make
 ```
 
 ### Add AWS CLI
