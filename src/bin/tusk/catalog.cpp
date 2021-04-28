@@ -1,16 +1,17 @@
 #include "catalog.h" // class implemented
 #include "utils.h"
 
+#include <CGAL/IO/STL_reader.h>
+#include <CGAL/Polygon_mesh_processing/repair_polygon_soup.h>
 #include <CGAL/Polygon_mesh_processing/orient_polygon_soup.h>
 #include <CGAL/Polygon_mesh_processing/polygon_soup_to_polygon_mesh.h>
 
-#include <CGAL/IO/STL_reader.h>
-
 #include <fstream>
+#include <vector>
+
+typedef boost::graph_traits<Mesh>::face_descriptor face_descriptor;
 
 namespace PMP = CGAL::Polygon_mesh_processing;
-
-using face_descriptor = boost::graph_traits<Mesh>::face_descriptor;
 
 using namespace tusk;
 
@@ -23,136 +24,99 @@ Catalog::~Catalog()
 }// Destructor
 
 void
-Catalog::read(const std::string& file, Mesh* M)
-{
-  if (file.find(".ply") != std::string::npos) {
-    readPLY(file, M);
-  } else if (file.find(".stl") != std::string::npos) {
-    readSTL(file, M);
-  }
-}// read
-
-
-void
-Catalog::read(const std::string& file, Polyhedron* P)
-{
-  Mesh m;
-
-  if (file.find(".ply") != std::string::npos) {
-    readPLY(file, &m);
-  } else if (file.find(".stl") != std::string::npos) {
-    readSTL(file, &m);
-  }
-}// read
-
-void
-Catalog::write(const Mesh& M, const std::string& file)
-{
-  if (file.find(".ply") != std::string::npos) {
-    writePLY(M, file);
-  } else if (file.find(".stl") != std::string::npos) {
-    writeSTL(M, file);
-  }
-}// write
-
-void
-Catalog::write(const Polyhedron& P, const std::string& file)
-{
-  Mesh m;
-
-  if (file.find(".ply") != std::string::npos) {
-    writePLY(m, file);
-  } else if (file.find(".stl") != std::string::npos) {
-    writeSTL(m, file);
-  }
-}// write
-
-void
-Catalog::readSTL(const std::string& file, Mesh* mesh)
-{
-  std::vector< CGAL::cpp11::array<double,3> > in_points;
-  std::vector< CGAL::cpp11::array<size_t,3> > triangles;
-
-  std::ifstream ifs(file.c_str());
-  CGAL::read_STL(ifs, in_points, triangles, false);
-
-  std::vector<Point> points;
-  points.resize(in_points.size());
-
-  for (std::size_t i = 0, l = in_points.size(); i < l; i++) {
-    points[i] = Point(in_points[i][0], in_points[i][1], in_points[i][2]);
-  }
-
-  std::vector<std::vector<std::size_t> > polygons;
-  polygons.resize(triangles.size());
-
-  for (std::size_t i = 0, l = triangles.size(); i < l; i++) {
-    polygons[i] = { triangles[i][0], triangles[i][1], triangles[i][2] };
-  } 
-
-  PMP::orient_polygon_soup(points, polygons);
-  PMP::polygon_soup_to_polygon_mesh(points, polygons, *mesh);
-
-  ifs.close();
-}// readSTL
-
-void
-Catalog::readPLY(const std::string& file, Mesh* mesh)
+Catalog::read(const std::string& path, Mesh* M)
 {
   std::vector<Point> points;
   std::vector<std::vector<std::size_t> > polygons;
 
-  read_PLY(file.c_str(), points, polygons);
-
+  if (path.find(".ply") != std::string::npos) {
+    read_ply(path.c_str(), points, polygons);
+  } else if (path.find(".stl") != std::string::npos) {
+    read_stl(path.c_str(), points, polygons);
+  }
+ 
+  PMP::repair_polygon_soup(points, polygons);
   PMP::orient_polygon_soup(points, polygons);
-  PMP::polygon_soup_to_polygon_mesh(points, polygons, *mesh);
-}// readPLY
+  PMP::polygon_soup_to_polygon_mesh(points, polygons, *M);
+}// read
 
 void
-Catalog::writeSTL(const Mesh& mesh, const std::string& file)
+Catalog::read(const std::string& path, Polyhedron* P)
 {
-  std::string info = "Source: Metatooth LLC, Format: STL, Type: Binary";
-  char head[80];
-  std::strncpy(head, info.c_str(), sizeof(head)-1);
-  char attribute[2] = "0";
-  unsigned long number = num_faces(mesh);
+  std::vector<Point> points;
+  std::vector<std::vector<std::size_t> > polygons;
 
-  std::ofstream ofs(file.c_str(), std::ios::out | std::ios::binary);
-  ofs.write(head, sizeof(head));
-  ofs.write((char*)&number, 4);
-  
-  BOOST_FOREACH(face_descriptor f, faces(mesh)) {
+  if (path.find(".ply") != std::string::npos) {
+    read_ply(path.c_str(), points, polygons);
+  } else if (path.find(".stl") != std::string::npos) {
+    read_stl(path.c_str(), points, polygons);
+  }
+
+  PMP::repair_polygon_soup(points, polygons);
+  PMP::orient_polygon_soup(points, polygons);
+  PMP::polygon_soup_to_polygon_mesh(points, polygons, *P);
+}// read
+
+void
+Catalog::write(const Mesh& M, const std::string& path)
+{
+  std::vector<Point> points;
+  std::vector<std::vector<std::size_t> > polygons;
+
+  std::size_t i = 0;
+  BOOST_FOREACH(face_descriptor f, faces(M)) {
     CGAL::Vertex_around_face_iterator<Mesh> vbegin, vend;
 
-    double coords[12] = { 0,0,0, 0,0,0, 0,0,0, 0,0,0 };
-    int i = 0;    
-    for (boost::tie(vbegin, vend) = vertices_around_face(mesh.halfedge(f), mesh);
+    for (boost::tie(vbegin, vend) = vertices_around_face(M.halfedge(f), M);
          vbegin != vend;
          ++vbegin) {
-      coords[3*i+3] = CGAL::to_double(mesh.point(*vbegin).x());
-      coords[3*i+4] = CGAL::to_double(mesh.point(*vbegin).y());
-      coords[3*i+5] = CGAL::to_double(mesh.point(*vbegin).z());
-      i++;       
+      double x = M.point(*vbegin).x();
+      double y = M.point(*vbegin).y();
+      double z = M.point(*vbegin).z();
+      points.push_back(Point(x, y, z));
     }
 
+    std::vector<std::size_t> polygon { i++, i++, i++ };
 
-    for (int i = 0; i < 12; ++i) {
-      std::cout << "coord " << i << " " << coords[i] << std::endl;
-      ofs.write((char*)&coords[i], 4);
-    }
-    ofs.write(attribute, 2);
-
-    i++;
+    polygons.push_back(polygon);
   }
 
-  ofs.close();
-}// writeSTL
+  if (path.find(".ply") != std::string::npos) {
+    write_ply(points, polygons, path.c_str());
+  } else if (path.find(".stl") != std::string::npos) {
+    write_stl(points, polygons, path.c_str());
+  }
+}// write
 
 void
-Catalog::writePLY(const Mesh& mesh, const std::string& file)
+Catalog::write(const Polyhedron& P, const std::string& path)
 {
   std::vector<Point> points;
   std::vector<std::vector<std::size_t> > polygons;
 
-  write_PLY(points, polygons, file.c_str());
-}// writePLY
+  auto iter = P.facets_begin();
+  auto nter = P.facets_end();
+  std::size_t i = 0;
+  while (iter != nter) {
+    auto circ = iter->facet_begin();
+    for (std::size_t j = 0; j < 3; j++) {
+      double x = circ->vertex()->point().x();
+      double y = circ->vertex()->point().y();
+      double z = circ->vertex()->point().z();
+      points.push_back(Point(x, y, z));
+      circ++;
+    }
+
+    std::vector<std::size_t> polygon { i++, i++, i++ };
+    polygons.push_back(polygon);
+
+    iter++;
+  }
+  
+  if (path.find(".ply") != std::string::npos) {
+    write_ply(points, polygons, path.c_str());
+  } else if (path.find(".stl") != std::string::npos) {
+    write_stl(points, polygons, path.c_str());
+  }
+}// write
+

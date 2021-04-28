@@ -52,7 +52,7 @@ static int face_cb(p_ply_argument argument) {
 }
 
 int
-tusk::read_PLY(const char* filename, 
+tusk::read_ply(const char* filename, 
                std::vector<Point>& points,
                std::vector<std::vector<std::size_t> >& polygons)
 {
@@ -85,10 +85,57 @@ tusk::read_PLY(const char* filename,
   } 
 
   return 0;
-}// read_PLY
+}// read_ply
+
+char buffer[4];
+
+float parse_float(std::ifstream& s) {
+  s.read(buffer, 4);
+  return *(float*) buffer;
+}
+
+Point parse_point(std::ifstream& s) {
+  float x = parse_float(s);
+  float y = parse_float(s);
+  float z = parse_float(s);
+  return Point(x, y, z);
+}
+  
+int
+tusk::read_stl(const char* filename, 
+               std::vector<Point>& points,
+               std::vector<std::vector<std::size_t> >& polygons)
+{
+  std::ifstream in(filename, std::ios::in | std::ios::binary);
+
+  if (!in) return 1;
+
+  char header[80] = "";
+  char number[4];
+
+  in.read(header, 80);
+  in.read(number, 4);
+  
+  unsigned int triangles = *(unsigned int*) number;
+  char pad[2];
+
+  for (std::size_t i = 0; i < triangles; i++) {
+    parse_point(in); // normal
+    points.push_back(parse_point(in));
+    points.push_back(parse_point(in));
+    points.push_back(parse_point(in));
+
+    std::vector<std::size_t> polygon { 3*i, 3*i+1, 3*i+2};
+    polygons.push_back( polygon );
+
+    in.read(pad, 2);
+  }
+  
+  return 0;
+}// read_stl
 
 int
-tusk::write_PLY(std::vector<Point>& points,
+tusk::write_ply(std::vector<Point>& points,
                 std::vector<std::vector<std::size_t> >& polygons,
                 const char* filename) {
   p_ply ply = ply_create(filename, PLY_LITTLE_ENDIAN, NULL, 0, NULL);
@@ -123,4 +170,44 @@ tusk::write_PLY(std::vector<Point>& points,
   if (!ply_close(ply)) return 1;
   
   return 0;
-}// write_PLY
+}// write_ply
+
+int
+tusk::write_stl(std::vector<Point>& points,
+                std::vector<std::vector<std::size_t> >& polygons,
+                const char* filename)
+{
+  char head[80] = "Source: Metatooth LLC, Format: STL, Type: Binary                               ";
+  char pad[2] = "0";
+  float zero = 0;
+  unsigned int number = polygons.size();
+
+  std::ofstream ofs(filename, std::ios::out | std::ios::binary);
+
+  if (!ofs) return 1;
+
+  ofs.write(head, 80);
+  ofs.write((char*)&number, 4);
+
+  for (unsigned int i = 0; i < number; i++) {
+    ofs.write((char*)&zero, 4);
+    ofs.write((char*)&zero, 4);
+    ofs.write((char*)&zero, 4);
+
+    for (unsigned int j = 0; j < 3; j++) {
+      float x = points[polygons[i][j]].x();
+      float y = points[polygons[i][j]].y();
+      float z = points[polygons[i][j]].z();
+
+      ofs.write((char*)&x, 4);
+      ofs.write((char*)&y, 4);
+      ofs.write((char*)&z, 4);
+    }
+
+    ofs.write(pad, 2);
+  }
+  
+  ofs.close();
+
+  return 0;
+}// write_stl

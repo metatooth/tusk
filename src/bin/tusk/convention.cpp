@@ -1,7 +1,10 @@
 #include <CGAL/Aff_transformation_3.h>
 
+#include "catalog.h"
 #include "convention.h" // class implemented
 #include "utils.h"
+
+#include <algorithm>
 
 using Affine = CGAL::Aff_transformation_3<K>;
 using Vector_3 = K::Vector_3;
@@ -14,7 +17,7 @@ Convention::usage()
   std::cerr << "tusk convention [infile] [outfile]\n\n"
             << "  Transform the [infile] mesh to meet Tusk conventional\n"
             << "  orientation, saving to [outfile]. Files to be in binary\n"
-            << "  PLY format.\n\n"
+            << "  PLY or STL format.\n\n"
             << "  for example, tusk convention input.ply output.ply\n"
             << std::endl;
 }// usage
@@ -27,8 +30,9 @@ Convention::run(const char* infile, const char* outfile)
     std::vector<std::vector<size_t> > polygons;
     
     std::cout << "Loading mesh from " << infile << "..." << std::endl;
-
-    read_PLY(infile, points, polygons);
+    Polyhedron P;
+    Catalog catalog;
+    catalog.read(infile, &P);
     std::cout << "Done." << std::endl;
    
     Affine x90(1,          0,         0,
@@ -46,14 +50,12 @@ Convention::run(const char* infile, const char* outfile)
                        0,       0, 1,
                 1);
     
-    Affine conventionalize = z180 * y90 * x90;
+    Affine A = z180 * y90 * x90;
 
-    for (std::size_t i = 0, l = points.size(); i < l; i++) {
-      points[i] = conventionalize(points[i]);
-    }
+    std::transform( P.points_begin(), P.points_end(), P.points_begin(), A );
 
     std::cout << "Write to " << outfile << std::endl;
-    write_PLY(points, polygons, outfile);
+    catalog.write(P, outfile);
     std::cout << "Done." << std::endl;
 
   } catch (std::exception& e) {

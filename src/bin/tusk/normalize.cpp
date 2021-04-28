@@ -28,7 +28,7 @@ Normalize::run(const char* infile, const char* outfile)
     
     std::cout << "Loading mesh from " << infile << "..." << std::endl;
 
-    read_PLY(infile, points, polygons);
+    read_ply(infile, points, polygons);
     std::cout << "Done." << std::endl;
 
     float avgx = points[0].x();
@@ -58,7 +58,7 @@ Normalize::run(const char* infile, const char* outfile)
     }
 
     std::cout << "Write to " << outfile << std::endl;
-    write_PLY(points, polygons, outfile);
+    write_ply(points, polygons, outfile);
     std::cout << "Done." << std::endl;
 
   } catch (std::exception& e) {

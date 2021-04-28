@@ -7,14 +7,10 @@
 
 #include "catalog.h"
 #include "extrude.h" // class implemented
-#include "utils.h"
 
 #include <fstream>
 #include <algorithm>
 
-using K = CGAL::Simple_cartesian<float>;
-
-using Polyhedron = CGAL::Polyhedron_3<K>;
 using Vector_3 = K::Vector_3;
 
 namespace PMP = CGAL::Polygon_mesh_processing;
@@ -69,18 +65,15 @@ Extrude::run(double offset, const char* infile, const char* outfile)
     std::vector<Point> points;
     std::vector<std::vector<size_t> > polygons;
 
-    std::cout << "Load impression from " << infile << std::endl;
-    read_PLY(infile, points, polygons);
-    std::cout << "Done." << std::endl;
-
+    Catalog catalog;
     Polyhedron impression, model;
 
-    PMP::orient_polygon_soup(points, polygons);
-    PMP::polygon_soup_to_polygon_mesh(points, polygons, impression);
+    std::cout << "Load impression from " << infile << std::endl;
+    catalog.read(infile, &impression);
+    std::cout << "Done." << std::endl;
 
     EXTRUDE = offset;
     std::cout << "Extruding mesh to y=" << EXTRUDE << " ..." << std::endl;
-
     typedef typename boost::property_map<Polyhedron, CGAL::vertex_point_t>::type VPMap;
     Bot<VPMap> bot(get(CGAL::vertex_point, model));
     Top<VPMap> top(get(CGAL::vertex_point, model));
@@ -88,7 +81,6 @@ Extrude::run(double offset, const char* infile, const char* outfile)
     std::cout << "Done." << std::endl;
 
     std::cout << "Write to " << outfile << std::endl;
-    tusk::Catalog catalog;
     catalog.write(model, outfile);
     std::cout << "Done." << std::endl;
 

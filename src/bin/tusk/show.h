@@ -6,7 +6,8 @@
 namespace tusk {
 
   class Show: public App {
-    public:
+  public:
+    Show();
     void usage();
     int run(const std::string& path);
   };
