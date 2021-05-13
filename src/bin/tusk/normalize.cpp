@@ -14,7 +14,7 @@ Normalize::usage()
   std::cerr << "tusk normalize [infile] [outfile]\n\n"
             << "  Transform the [infile] mesh to meet Tusk orientation\n"
             << "  conventions, saving to [outfile]. Files to be in binary\n"
-            << "  PLY format.\n\n"
+            << "  PLY or STL format.\n\n"
             << "  for example, tusk normalize input.ply output.ply\n"
             << std::endl;
 }// usage
@@ -26,20 +26,22 @@ Normalize::run(const char* infile, const char* outfile)
     std::vector<Point> points;
     std::vector<std::vector<size_t> > polygons;
     
-    std::cout << "Loading mesh from " << infile << "..." << std::endl;
-
-    read_ply(infile, points, polygons);
-    std::cout << "Done." << std::endl;
-
-    float avgx = points[0].x();
-    float avgy = points[0].y();
-    float avgz = points[0].z();
-    for (std::size_t i = 1, l = points.size(); i < l; i++) {
-      avgx = (i*avgx + points[i].x()) / (i+1);
-      avgy = (i*avgy + points[i].y()) / (i+1);
-      avgz = (i*avgz + points[i].z()) / (i+1);
+    std::cout << "Loading mesh from " << infile << "... ";
+    if (std::string(infile).find(".ply") != std::string::npos) {
+      read_ply(infile, points, polygons);
+    } else {
+      read_stl(infile, points, polygons);
     }
+    std::cout << "done." << std::endl;
 
+    double avgx = CGAL::to_double(points[0].x());
+    double avgy = CGAL::to_double(points[0].y());
+    double avgz = CGAL::to_double(points[0].z());
+    for (std::size_t i = 1, l = points.size(); i < l; i++) {
+      avgx = (i*avgx + CGAL::to_double(points[i].x())) / (i+1);
+      avgy = (i*avgy + CGAL::to_double(points[i].y())) / (i+1);
+      avgz = (i*avgz + CGAL::to_double(points[i].z())) / (i+1);
+    }
     std::cout << "avgx " << avgx << std::endl;
     std::cout << "avgy " << avgy << std::endl;
     std::cout << "avgz " << avgz << std::endl; 

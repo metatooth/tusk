@@ -70,9 +70,9 @@ Catalog::write(const Mesh& M, const std::string& path)
     for (boost::tie(vbegin, vend) = vertices_around_face(M.halfedge(f), M);
          vbegin != vend;
          ++vbegin) {
-      double x = M.point(*vbegin).x();
-      double y = M.point(*vbegin).y();
-      double z = M.point(*vbegin).z();
+      double x = CGAL::to_double(M.point(*vbegin).x());
+      double y = CGAL::to_double(M.point(*vbegin).y());
+      double z = CGAL::to_double(M.point(*vbegin).z());
       points.push_back(Point(x, y, z));
     }
 
@@ -100,9 +100,9 @@ Catalog::write(const Polyhedron& P, const std::string& path)
   while (iter != nter) {
     auto circ = iter->facet_begin();
     for (std::size_t j = 0; j < 3; j++) {
-      double x = circ->vertex()->point().x();
-      double y = circ->vertex()->point().y();
-      double z = circ->vertex()->point().z();
+      double x = CGAL::to_double(circ->vertex()->point().x());
+      double y = CGAL::to_double(circ->vertex()->point().y());
+      double z = CGAL::to_double(circ->vertex()->point().z());
       points.push_back(Point(x, y, z));
       circ++;
     }

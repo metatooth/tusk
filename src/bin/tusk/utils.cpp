@@ -155,9 +155,9 @@ tusk::write_ply(std::vector<Point>& points,
   if (!ply_write_header(ply)) return 1;
 
   for (std::size_t i = 0; i < nvertices; i++) {
-    ply_write(ply, points[i].x());
-    ply_write(ply, points[i].y());
-    ply_write(ply, points[i].z());
+    ply_write(ply, CGAL::to_double(points[i].x()));
+    ply_write(ply, CGAL::to_double(points[i].y()));
+    ply_write(ply, CGAL::to_double(points[i].z()));
   }
 
   for (std::size_t i = 0; i < nfaces; i++) {
@@ -195,9 +195,9 @@ tusk::write_stl(std::vector<Point>& points,
     ofs.write((char*)&zero, 4);
 
     for (unsigned int j = 0; j < 3; j++) {
-      float x = points[polygons[i][j]].x();
-      float y = points[polygons[i][j]].y();
-      float z = points[polygons[i][j]].z();
+      float x = CGAL::to_double(points[polygons[i][j]].x());
+      float y = CGAL::to_double(points[polygons[i][j]].y());
+      float z = CGAL::to_double(points[polygons[i][j]].z());
 
       ofs.write((char*)&x, 4);
       ofs.write((char*)&y, 4);

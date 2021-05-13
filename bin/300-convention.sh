@@ -21,7 +21,6 @@ echo $CURR
 rm -rf $INDIR/300
 mkdir $INDIR/300
 
-for f in $INDIR/200/*.ply; do
-  next="$(basename ${f})"
-  _build/bin/tusk/tusk convention $f $INDIR/300/$next
-done
+_build/bin/tusk/tusk convention $INDIR/200/220-repaired.ply $INDIR/300/300.ply
+
+

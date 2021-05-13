@@ -48,13 +48,13 @@ Remesh::run(double length,
   try {
     Mesh mesh;
 
-    std::cout << "Load mesh from " << infile << "...";
+    std::cout << "Load mesh from " << infile << "... ";
     Catalog catalog;
     catalog.read(infile, &mesh);
     std::cout << "done." << std::endl;
 
     unsigned int nb_iter = 3;
-    std::cout << "Split border...";
+    std::cout << "Split border... ";
     std::vector<edge_descriptor> border;
     PMP::border_halfedges(faces(mesh),
                           mesh,
@@ -62,11 +62,11 @@ Remesh::run(double length,
     PMP::split_long_edges(border, length, mesh);
     std::cout << "done." << std::endl;
 
-    std::cout << "Remeshing (" << num_faces(mesh) << " faces) by target edge length " << length << "mm ...";
+    std::cout << "Remeshing (" << num_faces(mesh) << " faces) by target edge length " << length << "mm ... ";
     PMP::isotropic_remeshing(faces(mesh), length, mesh, PMP::parameters::number_of_iterations(nb_iter));
     std::cout << "done." << std::endl;
 
-    std::cout << "Write to " << outfile << "...";
+    std::cout << "Write to " << outfile << "... ";
     catalog.write(mesh, outfile);
     std::cout << "done." << std::endl;
 

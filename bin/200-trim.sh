@@ -21,7 +21,10 @@ echo $CURR
 rm -rf $INDIR/200
 mkdir $INDIR/200
 
-for f in $INDIR/100/*.ply; do
-    next="$(basename -- $f)"
-    ~/metaspace/meshlab/distrib/meshlabserver -l $INDIR/200/meshlab.log -i $f -o $INDIR/200/$next -m vn fn -s etc/200-trim.mlx    
-done
+MSHLB=~/metaspace/meshlab/distrib/meshlabserver
+LOG=$INDIR/200/meshlab.log 
+
+$MSHLB -l $LOG -i $INDIR/100/100.ply -o $INDIR/200/200-trimmed.ply -m vn fn -s etc/select-faces-by-color.mlx
+$MSHLB -l $LOG -i $INDIR/200/200-trimmed.ply -o $INDIR/200/210-merged.ply -m vn fn -s etc/merge-close-vertices.mlx    
+$MSHLB -l $LOG -i $INDIR/200/210-merged.ply -o $INDIR/200/220-repaired.ply -m vn fn -s etc/repair-non-manifold-edges-by-removing-faces.mlx
+

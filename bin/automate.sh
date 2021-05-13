@@ -36,10 +36,10 @@ for d in $INDIR/*; do
      continue
     fi
 
-#    bin/200.sh $d
-#    bin/300.sh $d
-#    bin/400.sh $d
-#    bin/500.sh $d
+    bin/200-trim.sh $d
+    bin/300-convention.sh $d
+    bin/400-normalize.sh $d
+    bin/500-model-and-shell.sh $d
 done
 
 rm -rf $OUTDIR/$year-$month-$day

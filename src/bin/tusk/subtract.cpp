@@ -11,7 +11,7 @@ void
 Subtract::usage()
 {
   std::cerr << "subtract [a] [b] [out]\n\n"
-            << "  Boolean subtraction of watertight mesh [b] from [a].\n"
+            << "  Boolean difference of watertight mesh [b] from [a].\n"
             << "  Result stored in [out] file. Files in binary STL format.\n\n"
             << "  for example, subtract a.stl b.stl output.stl\n"
             << std::endl;
@@ -24,26 +24,27 @@ Subtract::run(const std::string& afile,
 {
   try {
     Catalog catalog;
-
+    
     Mesh A, B;
-
+    
     std::cout << "Load mesh A from " << afile << "... ";
     catalog.read(afile, &A);
     std::cout << "done." << std::endl;
 
     std::cout << "Load mesh B from " << bfile << "... ";
-    catalog.read(afile, &B);
+    catalog.read(bfile, &B);
     std::cout << "done." << std::endl;
-    
-    Mesh out;
-    bool valid = PMP::corefine_and_compute_difference(A, B, out);
 
-    if (valid) {
-      std::cout << "Save result to " << outfile << "... ";
-      catalog.write(out, outfile);
+    std::cout << "Corefine and compute difference... ";
+    if (PMP::corefine_and_compute_difference(A, B, A)) {
+      std::cout << "done." << std::endl;
+
+      std::cout << "Write result to " << outfile << "... ";
+      catalog.write(A, outfile);
       std::cout << "done." << std::endl;
     } else {
       std::cout << "Difference could not be computed." << std::endl;
+      return 1;
     }
   
   } catch (std::exception& e) {

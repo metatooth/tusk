@@ -3,6 +3,7 @@
 
 #include "convention.h"
 #include "convert.h"
+#include "clip.h"
 #include "extrude.h"
 #include "normalize.h"
 #include "remesh.h"
@@ -16,6 +17,7 @@ void usage()
             << "These are the common Tusk commands used in various situations:\n\n"
             << "  convention       Transform mesh to conventional orientation\n"
             << "  convert          Convert mesh file format\n"
+            << "  clip             Clip a mesh by a plane\n"
             << "  extrude          Extrudes a mesh\n"
             << "  normalize        Transform mesh to \"normal\" dental position\n"
             << "  subtract         Difference of two watertight meshes.\n"
@@ -44,7 +46,14 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-  if (first.compare("convention") == 0) {
+  if (first.compare("clip") == 0) {
+    Clip clip;
+    if (argc < 5) {
+      clip.usage();
+      return 1;
+    }
+    clip.run(atof(argv[2]), argv[3], argv[4]);
+  } else if (first.compare("convention") == 0) {
     Convention convention;
     if (argc < 4) {
       convention.usage();
@@ -121,6 +130,9 @@ int main(int argc, char* argv[])
       return 1;
     }
     unn.run(argv[2], argv[3], argv[4]);
+  } else {
+    usage();
+    return 1;
   }
 
   return 0;

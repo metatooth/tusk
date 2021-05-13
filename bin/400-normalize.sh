@@ -21,7 +21,4 @@ echo $CURR
 rm -rf $INDIR/400
 mkdir $INDIR/400
 
-for f in $INDIR/300/*.ply; do
-    next="$(basename ${f})"
-    _build/bin/tusk/tusk normalize $f $INDIR/400/$next
-done
+_build/bin/tusk/tusk normalize $INDIR/300/300.ply $INDIR/400/400.ply

@@ -4,6 +4,7 @@ include_directories("../../lib")
 
 create_single_source_cgal_program(tusk.cpp
   catalog.cpp
+  clip.cpp
   convention.cpp
   convert.cpp
   extrude.cpp

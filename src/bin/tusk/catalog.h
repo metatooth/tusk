@@ -5,13 +5,6 @@
 
 #include <string>
 
-#include <CGAL/Surface_mesh.h>
-#include <CGAL/Polyhedron_3.h>
-#include <CGAL/Polyhedron_items_with_id_3.h>
-
-typedef CGAL::Polyhedron_3<K, CGAL::Polyhedron_items_with_id_3> Polyhedron;
-typedef CGAL::Surface_mesh<Point> Mesh;
-
 namespace tusk {
 
   class Catalog {
