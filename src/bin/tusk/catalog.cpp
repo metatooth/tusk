@@ -1,7 +1,7 @@
 #include "catalog.h" // class implemented
 #include "utils.h"
 
-#include <CGAL/IO/STL_reader.h>
+#include <CGAL/IO/STL/STL_reader.h>
 #include <CGAL/Polygon_mesh_processing/repair_polygon_soup.h>
 #include <CGAL/Polygon_mesh_processing/orient_polygon_soup.h>
 #include <CGAL/Polygon_mesh_processing/polygon_soup_to_polygon_mesh.h>

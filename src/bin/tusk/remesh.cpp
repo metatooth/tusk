@@ -1,10 +1,11 @@
-#include <CGAL/Polygon_mesh_processing/remesh.h>
-#include <CGAL/Polygon_mesh_processing/border.h>
-
 #include "catalog.h"
 #include "remesh.h" // class implemented
 
-#include <boost/function_output_iterator.hpp>
+#include <CGAL/Polygon_mesh_processing/remesh.h>
+#include <CGAL/Polygon_mesh_processing/border.h>
+
+#include <boost/iterator/function_output_iterator.hpp>
+
 #include <fstream>
 #include <vector>
 
@@ -41,7 +42,7 @@ Remesh::usage()
 
 
 int
-Remesh::run(double length,
+Remesh::run(double target_edge_length,
             const std::string& infile,
             const std::string& outfile)
 {
@@ -54,20 +55,25 @@ Remesh::run(double length,
     std::cout << "done." << std::endl;
 
     unsigned int nb_iter = 3;
+    
     std::cout << "Split border... ";
+    
     std::vector<edge_descriptor> border;
-    PMP::border_halfedges(faces(mesh),
-                          mesh,
-                          boost::make_function_output_iterator(halfedge2edge(mesh, border)));
-    PMP::split_long_edges(border, length, mesh);
-    std::cout << "done." << std::endl;
+    PMP::border_halfedges(faces(mesh), mesh, boost::make_function_output_iterator(halfedge2edge(mesh, border)));
+    PMP::split_long_edges(border, target_edge_length, mesh);
 
-    std::cout << "Remeshing (" << num_faces(mesh) << " faces) by target edge length " << length << "mm ... ";
-    PMP::isotropic_remeshing(faces(mesh), length, mesh, PMP::parameters::number_of_iterations(nb_iter));
     std::cout << "done." << std::endl;
+    std::cout << "Remeshing " << infile << " (" << num_faces(mesh) << " faces) by target edge length " << target_edge_length << "mm ... ";
 
+    PMP::isotropic_remeshing(faces(mesh), target_edge_length, mesh,
+                             PMP::parameters::number_of_iterations(nb_iter)
+                             .protect_constraints(true));
+
+    std::cout << "done." << std::endl;
     std::cout << "Write to " << outfile << "... ";
+
     catalog.write(mesh, outfile);
+
     std::cout << "done." << std::endl;
 
   } catch (std::exception& e) {

@@ -1,6 +1,6 @@
 #include "utils.h" // class implemented
 
-#include <CGAL/IO/STL_reader.h>
+#include <CGAL/IO/STL/STL_reader.h>
 
 #include "rply-1.1.4/rply.h"
 

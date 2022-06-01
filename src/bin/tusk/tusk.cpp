@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 
+#include "clip.h"
 #include "convention.h"
 #include "convert.h"
-#include "clip.h"
 #include "extrude.h"
 #include "normalize.h"
 #include "remesh.h"
@@ -15,9 +15,9 @@ void usage()
 {
   std::cerr << "usage: tusk [--version] [--help] <command> [<args>]\n\n"
             << "These are the common Tusk commands used in various situations:\n\n"
+            << "  clip             Clip a mesh by a plane\n"
             << "  convention       Transform mesh to conventional orientation\n"
             << "  convert          Convert mesh file format\n"
-            << "  clip             Clip a mesh by a plane\n"
             << "  extrude          Extrudes a mesh\n"
             << "  normalize        Transform mesh to \"normal\" dental position\n"
             << "  subtract         Difference of two watertight meshes.\n"

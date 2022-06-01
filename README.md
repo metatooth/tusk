@@ -4,7 +4,7 @@ Make teeth stuff.
 
 ## Getting Started
 
-Using Ubuntu 20.04
+Using Ubuntu 22.04
 
 ```
 $ sudo apt install clang-tidy
@@ -14,19 +14,11 @@ $ sudo apt install qt5-default
 $ sudo apt install libqt5xmlpatterns5 libqt5xmlpatterns5-dev
 $ sudo apt install qtscript5-dev qtdeclarative5-dev
 $ sudo apt install jq cmake curl
+$ sudo apt install cppcheck
 $ git clone https://github.com/metatooth/tusk.git
 ```
 
 ## Build Setup
-
-### Build MeshLab
-
-```
-$ git clone --recursive https://github.com/cnr-isti-vclab/meshlab
-$ cd meshlab
-$ cmake src/
-$ make
-```
 
 ### Build Tusk
 
@@ -55,4 +47,4 @@ https://computingforgeeks.com/install-ejabberd-xmpp-server-on-ubuntu/#ex1
 
 ## License
 
-Copyright 2021 Metatooth LLC. See the [LICENSE](LICENSE).
+Copyright 2022 Metatooth LLC. See the [LICENSE](LICENSE).
