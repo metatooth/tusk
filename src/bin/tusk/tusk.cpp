@@ -20,10 +20,11 @@ void usage()
             << "  convert          Convert mesh file format\n"
             << "  extrude          Extrudes a mesh\n"
             << "  normalize        Transform mesh to \"normal\" dental position\n"
-            << "  subtract         Difference of two watertight meshes.\n"
-            << "  union            Union of two watertight meshes.\n"
             << "  remesh           Isotropic remeshing\n"
             << "  show             Displays a mesh\n"
+            << "  subtract         Difference of two watertight meshes.\n"
+            << "  trim             Deletes faces & vertices by face color.\n"
+            << "  union            Union of two watertight meshes.\n"
             << std::endl;
 }
 
@@ -123,6 +124,13 @@ int main(int argc, char* argv[])
       return 1;
     }
     subtract.run(argv[2], argv[3], argv[4]);
+  } else if (first.compare("trim") == 0) {
+    Trim trim;
+    if (argc < 5) {
+      trim.usage();
+      return 1;
+    }
+    trim.run(argv[2], argv[3], argv[4]);
   } else if (first.compare("union") == 0) {
     Union unn;
     if (argc < 5) {
